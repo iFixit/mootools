@@ -7153,6 +7153,8 @@ requires:
 
 provides: [HtmlTable]
 
+used: [purchasing.js]
+
 ...
 */
 (function(){
@@ -9427,6 +9429,8 @@ requires:
 
 provides: [URI]
 
+used: Various places
+
 ...
 */
 
@@ -9594,6 +9598,8 @@ requires:
 
 provides: [URI.Relative]
 
+used: Various places
+
 ...
 */
 
@@ -9650,6 +9656,8 @@ requires:
   - MooTools.More
 
 provides: [Assets, Asset.javascript, Asset.css, Asset.image, Asset.images]
+
+used: several places
 
 ...
 */
@@ -9808,6 +9816,7 @@ requires:
 
 provides: [Color]
 
+used: [konami.js]
 ...
 */
 
