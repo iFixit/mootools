@@ -10,6 +10,8 @@ Core Modules
 
 Everything.
 
+Patched `Element.getProperty` to return the `Element` when called without arguments. This is a hack to fix a bug; see https://github.com/iFixit/mootools/pull/3 for details.
+
 
 More Modules
 -----
