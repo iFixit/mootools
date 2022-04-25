@@ -3490,6 +3490,9 @@ Element.implement({
 	},
 
 	getProperty: function(name){
+		if (!name) {
+			return this;
+		}
 		var getter = propertyGetters[name.toLowerCase()];
 		if (getter) return getter(this);
 		/* <ltIE9> */
