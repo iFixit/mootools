@@ -1,5 +1,5 @@
 
-Mootools Core + More v1.5.1
+Mootools Core + More v1.6.0
 --------------
 
 This repo serves as documentation of our custom build of Mootools, done
@@ -16,5 +16,5 @@ Patched `Element.getProperty` to return the `Element` when called without argume
 More Modules
 -----
 
-See this link for a list of modules that ARE included in MooTools-More-1.5.1.js:
-http://mootools.net/more/builder/e8e23eb12e98acfdf603671afd2fc3eb
+See this link for a list of modules that ARE included in our version MooTools-More-1.6.0.js:
+https://mootools.net/more/builder/64e552873daafb46f1d52dcbdcb6139e
