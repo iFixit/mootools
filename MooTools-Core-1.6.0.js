@@ -1,6 +1,6 @@
-/* MooTools: the javascript framework. license: MIT-style license. copyright: Copyright (c) 2006-2019 [Valerio Proietti](https://mootools.net/).*/ 
+/* MooTools: the javascript framework. license: MIT-style license. copyright: Copyright (c) 2006-2022 [Valerio Proietti](https://mootools.net/).*/ 
 /*!
-Web Build: https://mootools.net/core/builder/e426a9ae7167c5807b173d5deff673fc
+Web Build: https://mootools.net/core/builder/83d5a6bfac55fb15c413a507682789e9
 */
 /*
 ---
@@ -1268,230 +1268,6 @@ this.Options = new Class({
 	}
 
 });
-
-})();
-
-/*
----
-
-name: Class.Thenable
-
-description: Contains a Utility Class that can be implemented into your own Classes to make them "thenable".
-
-license: MIT-style license.
-
-requires: Class
-
-provides: [Class.Thenable]
-
-...
-*/
-
-(function(){
-
-var STATE_PENDING = 0,
-	STATE_FULFILLED = 1,
-	STATE_REJECTED = 2;
-
-var Thenable = Class.Thenable = new Class({
-
-	$thenableState: STATE_PENDING,
-	$thenableResult: null,
-	$thenableReactions: [],
-
-	resolve: function(value){
-		resolve(this, value);
-		return this;
-	},
-
-	reject: function(reason){
-		reject(this, reason);
-		return this;
-	},
-
-	getThenableState: function(){
-		switch (this.$thenableState){
-			case STATE_PENDING:
-				return 'pending';
-
-			case STATE_FULFILLED:
-				return 'fulfilled';
-
-			case STATE_REJECTED:
-				return 'rejected';
-		}
-	},
-
-	resetThenable: function(reason){
-		reject(this, reason);
-		reset(this);
-		return this;
-	},
-
-	then: function(onFulfilled, onRejected){
-		if (typeof onFulfilled !== 'function') onFulfilled = 'Identity';
-		if (typeof onRejected !== 'function') onRejected = 'Thrower';
-
-		var thenable = new Thenable();
-
-		this.$thenableReactions.push({
-			thenable: thenable,
-			fulfillHandler: onFulfilled,
-			rejectHandler: onRejected
-		});
-
-		if (this.$thenableState !== STATE_PENDING){
-			react(this);
-		}
-
-		return thenable;
-	},
-
-	'catch': function(onRejected){
-		return this.then(null, onRejected);
-	}
-
-});
-
-Thenable.extend({
-	resolve: function(value){
-		var thenable;
-		if (value instanceof Thenable){
-			thenable = value;
-		} else {
-			thenable = new Thenable();
-			resolve(thenable, value);
-		}
-		return thenable;
-	},
-	reject: function(reason){
-		var thenable = new Thenable();
-		reject(thenable, reason);
-		return thenable;
-	}
-});
-
-// Private functions
-
-function resolve(thenable, value){
-	if (thenable.$thenableState === STATE_PENDING){
-		if (thenable === value){
-			reject(thenable, new TypeError('Tried to resolve a thenable with itself.'));
-		} else if (value && (typeof value === 'object' || typeof value === 'function')){
-			var then;
-			try {
-				then = value.then;
-			} catch (exception){
-				reject(thenable, exception);
-			}
-			if (typeof then === 'function'){
-				var resolved = false;
-				defer(function(){
-					try {
-						then.call(
-							value,
-							function(nextValue){
-								if (!resolved){
-									resolved = true;
-									resolve(thenable, nextValue);
-								}
-							},
-							function(reason){
-								if (!resolved){
-									resolved = true;
-									reject(thenable, reason);
-								}
-							}
-						);
-					} catch (exception){
-						if (!resolved){
-							resolved = true;
-							reject(thenable, exception);
-						}
-					}
-				});
-			} else {
-				fulfill(thenable, value);
-			}
-		} else {
-			fulfill(thenable, value);
-		}
-	}
-}
-
-function fulfill(thenable, value){
-	if (thenable.$thenableState === STATE_PENDING){
-		thenable.$thenableResult = value;
-		thenable.$thenableState = STATE_FULFILLED;
-
-		react(thenable);
-	}
-}
-
-function reject(thenable, reason){
-	if (thenable.$thenableState === STATE_PENDING){
-		thenable.$thenableResult = reason;
-		thenable.$thenableState = STATE_REJECTED;
-
-		react(thenable);
-	}
-}
-
-function reset(thenable){
-	if (thenable.$thenableState !== STATE_PENDING){
-		thenable.$thenableResult = null;
-		thenable.$thenableState = STATE_PENDING;
-	}
-}
-
-function react(thenable){
-	var state = thenable.$thenableState,
-		result = thenable.$thenableResult,
-		reactions = thenable.$thenableReactions,
-		type;
-
-	if (state === STATE_FULFILLED){
-		thenable.$thenableReactions = [];
-		type = 'fulfillHandler';
-	} else if (state == STATE_REJECTED){
-		thenable.$thenableReactions = [];
-		type = 'rejectHandler';
-	}
-
-	if (type){
-		defer(handle.pass([result, reactions, type]));
-	}
-}
-
-function handle(result, reactions, type){
-	for (var i = 0, l = reactions.length; i < l; ++i){
-		var reaction = reactions[i],
-			handler = reaction[type];
-
-		if (handler === 'Identity'){
-			resolve(reaction.thenable, result);
-		} else if (handler === 'Thrower'){
-			reject(reaction.thenable, result);
-		} else {
-			try {
-				resolve(reaction.thenable, handler(result));
-			} catch (exception){
-				reject(reaction.thenable, exception);
-			}
-		}
-	}
-}
-
-var defer;
-if (typeof process !== 'undefined' && typeof process.nextTick === 'function'){
-	defer = process.nextTick;
-} else if (typeof setImmediate !== 'undefined'){
-	defer = setImmediate;
-} else {
-	defer = function(fn){
-		setTimeout(fn, 0);
-	};
-}
 
 })();
 
@@ -5010,680 +4786,226 @@ Element.alias({position: 'setPosition'}); //compatability
 /*
 ---
 
-name: Fx
+name: Class.Thenable
 
-description: Contains the basic animation logic to be extended by all other Fx Classes.
+description: Contains a Utility Class that can be implemented into your own Classes to make them "thenable".
 
 license: MIT-style license.
 
-requires: [Chain, Events, Options, Class.Thenable]
+requires: Class
 
-provides: Fx
+provides: [Class.Thenable]
 
 ...
 */
 
 (function(){
 
-var Fx = this.Fx = new Class({
+var STATE_PENDING = 0,
+	STATE_FULFILLED = 1,
+	STATE_REJECTED = 2;
 
-	Implements: [Chain, Events, Options, Class.Thenable],
+var Thenable = Class.Thenable = new Class({
 
-	options: {
-		/*
-		onStart: nil,
-		onCancel: nil,
-		onComplete: nil,
-		*/
-		fps: 60,
-		unit: false,
-		duration: 500,
-		frames: null,
-		frameSkip: true,
-		link: 'ignore'
-	},
+	$thenableState: STATE_PENDING,
+	$thenableResult: null,
+	$thenableReactions: [],
 
-	initialize: function(options){
-		this.subject = this.subject || this;
-		this.setOptions(options);
-	},
-
-	getTransition: function(){
-		return function(p){
-			return -(Math.cos(Math.PI * p) - 1) / 2;
-		};
-	},
-
-	step: function(now){
-		if (this.options.frameSkip){
-			var diff = (this.time != null) ? (now - this.time) : 0, frames = diff / this.frameInterval;
-			this.time = now;
-			this.frame += frames;
-		} else {
-			this.frame++;
-		}
-
-		if (this.frame < this.frames){
-			var delta = this.transition(this.frame / this.frames);
-			this.set(this.compute(this.from, this.to, delta));
-		} else {
-			this.frame = this.frames;
-			this.set(this.compute(this.from, this.to, 1));
-			this.stop();
-		}
-	},
-
-	set: function(now){
-		return now;
-	},
-
-	compute: function(from, to, delta){
-		return Fx.compute(from, to, delta);
-	},
-
-	check: function(){
-		if (!this.isRunning()) return true;
-		switch (this.options.link){
-			case 'cancel': this.cancel(); return true;
-			case 'chain': this.chain(this.caller.pass(arguments, this)); return false;
-		}
-		return false;
-	},
-
-	start: function(from, to){
-		if (!this.check(from, to)) return this;
-		this.from = from;
-		this.to = to;
-		this.frame = (this.options.frameSkip) ? 0 : -1;
-		this.time = null;
-		this.transition = this.getTransition();
-		var frames = this.options.frames, fps = this.options.fps, duration = this.options.duration;
-		this.duration = Fx.Durations[duration] || duration.toInt();
-		this.frameInterval = 1000 / fps;
-		this.frames = frames || Math.round(this.duration / this.frameInterval);
-		if (this.getThenableState() !== 'pending'){
-			this.resetThenable(this.subject);
-		}
-		this.fireEvent('start', this.subject);
-		pushInstance.call(this, fps);
+	resolve: function(value){
+		resolve(this, value);
 		return this;
 	},
 
-	stop: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-			if (this.frames == this.frame){
-				this.fireEvent('complete', this.subject);
-				if (!this.callChain()) this.fireEvent('chainComplete', this.subject);
-			} else {
-				this.fireEvent('stop', this.subject);
-			}
-			this.resolve(this.subject === this ? null : this.subject);
+	reject: function(reason){
+		reject(this, reason);
+		return this;
+	},
+
+	getThenableState: function(){
+		switch (this.$thenableState){
+			case STATE_PENDING:
+				return 'pending';
+
+			case STATE_FULFILLED:
+				return 'fulfilled';
+
+			case STATE_REJECTED:
+				return 'rejected';
 		}
+	},
+
+	resetThenable: function(reason){
+		reject(this, reason);
+		reset(this);
 		return this;
 	},
 
-	cancel: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-			this.frame = this.frames;
-			this.fireEvent('cancel', this.subject).clearChain();
-			this.reject(this.subject);
+	then: function(onFulfilled, onRejected){
+		if (typeof onFulfilled !== 'function') onFulfilled = 'Identity';
+		if (typeof onRejected !== 'function') onRejected = 'Thrower';
+
+		var thenable = new Thenable();
+
+		this.$thenableReactions.push({
+			thenable: thenable,
+			fulfillHandler: onFulfilled,
+			rejectHandler: onRejected
+		});
+
+		if (this.$thenableState !== STATE_PENDING){
+			react(this);
 		}
-		return this;
+
+		return thenable;
 	},
 
-	pause: function(){
-		if (this.isRunning()){
-			this.time = null;
-			pullInstance.call(this, this.options.fps);
-		}
-		return this;
-	},
-
-	resume: function(){
-		if (this.isPaused()) pushInstance.call(this, this.options.fps);
-		return this;
-	},
-
-	isRunning: function(){
-		var list = instances[this.options.fps];
-		return list && list.contains(this);
-	},
-
-	isPaused: function(){
-		return (this.frame < this.frames) && !this.isRunning();
+	'catch': function(onRejected){
+		return this.then(null, onRejected);
 	}
 
 });
 
-Fx.compute = function(from, to, delta){
-	return (to - from) * delta + from;
-};
-
-Fx.Durations = {'short': 250, 'normal': 500, 'long': 1000};
-
-// global timers
-
-var instances = {}, timers = {};
-
-var loop = function(){
-	var now = Date.now();
-	for (var i = this.length; i--;){
-		var instance = this[i];
-		if (instance) instance.step(now);
+Thenable.extend({
+	resolve: function(value){
+		var thenable;
+		if (value instanceof Thenable){
+			thenable = value;
+		} else {
+			thenable = new Thenable();
+			resolve(thenable, value);
+		}
+		return thenable;
+	},
+	reject: function(reason){
+		var thenable = new Thenable();
+		reject(thenable, reason);
+		return thenable;
 	}
-};
+});
 
-var pushInstance = function(fps){
-	var list = instances[fps] || (instances[fps] = []);
-	list.push(this);
-	if (!timers[fps]) timers[fps] = loop.periodical(Math.round(1000 / fps), list);
-};
+// Private functions
 
-var pullInstance = function(fps){
-	var list = instances[fps];
-	if (list){
-		list.erase(this);
-		if (!list.length && timers[fps]){
-			delete instances[fps];
-			timers[fps] = clearInterval(timers[fps]);
+function resolve(thenable, value){
+	if (thenable.$thenableState === STATE_PENDING){
+		if (thenable === value){
+			reject(thenable, new TypeError('Tried to resolve a thenable with itself.'));
+		} else if (value && (typeof value === 'object' || typeof value === 'function')){
+			var then;
+			try {
+				then = value.then;
+			} catch (exception){
+				reject(thenable, exception);
+			}
+			if (typeof then === 'function'){
+				var resolved = false;
+				defer(function(){
+					try {
+						then.call(
+							value,
+							function(nextValue){
+								if (!resolved){
+									resolved = true;
+									resolve(thenable, nextValue);
+								}
+							},
+							function(reason){
+								if (!resolved){
+									resolved = true;
+									reject(thenable, reason);
+								}
+							}
+						);
+					} catch (exception){
+						if (!resolved){
+							resolved = true;
+							reject(thenable, exception);
+						}
+					}
+				});
+			} else {
+				fulfill(thenable, value);
+			}
+		} else {
+			fulfill(thenable, value);
 		}
 	}
-};
+}
+
+function fulfill(thenable, value){
+	if (thenable.$thenableState === STATE_PENDING){
+		thenable.$thenableResult = value;
+		thenable.$thenableState = STATE_FULFILLED;
+
+		react(thenable);
+	}
+}
+
+function reject(thenable, reason){
+	if (thenable.$thenableState === STATE_PENDING){
+		thenable.$thenableResult = reason;
+		thenable.$thenableState = STATE_REJECTED;
+
+		react(thenable);
+	}
+}
+
+function reset(thenable){
+	if (thenable.$thenableState !== STATE_PENDING){
+		thenable.$thenableResult = null;
+		thenable.$thenableState = STATE_PENDING;
+	}
+}
+
+function react(thenable){
+	var state = thenable.$thenableState,
+		result = thenable.$thenableResult,
+		reactions = thenable.$thenableReactions,
+		type;
+
+	if (state === STATE_FULFILLED){
+		thenable.$thenableReactions = [];
+		type = 'fulfillHandler';
+	} else if (state == STATE_REJECTED){
+		thenable.$thenableReactions = [];
+		type = 'rejectHandler';
+	}
+
+	if (type){
+		defer(handle.pass([result, reactions, type]));
+	}
+}
+
+function handle(result, reactions, type){
+	for (var i = 0, l = reactions.length; i < l; ++i){
+		var reaction = reactions[i],
+			handler = reaction[type];
+
+		if (handler === 'Identity'){
+			resolve(reaction.thenable, result);
+		} else if (handler === 'Thrower'){
+			reject(reaction.thenable, result);
+		} else {
+			try {
+				resolve(reaction.thenable, handler(result));
+			} catch (exception){
+				reject(reaction.thenable, exception);
+			}
+		}
+	}
+}
+
+var defer;
+if (typeof process !== 'undefined' && typeof process.nextTick === 'function'){
+	defer = process.nextTick;
+} else if (typeof setImmediate !== 'undefined'){
+	defer = setImmediate;
+} else {
+	defer = function(fn){
+		setTimeout(fn, 0);
+	};
+}
 
 })();
-
-/*
----
-
-name: Fx.CSS
-
-description: Contains the CSS animation logic. Used by Fx.Tween, Fx.Morph, Fx.Elements.
-
-license: MIT-style license.
-
-requires: [Fx, Element.Style]
-
-provides: Fx.CSS
-
-...
-*/
-
-Fx.CSS = new Class({
-
-	Extends: Fx,
-
-	//prepares the base from/to object
-
-	prepare: function(element, property, values){
-		values = Array.convert(values);
-		var from = values[0], to = values[1];
-		if (to == null){
-			to = from;
-			from = element.getStyle(property);
-			var unit = this.options.unit;
-			// adapted from: https://github.com/ryanmorr/fx/blob/master/fx.js#L299
-			if (unit && from && typeof from == 'string' && from.slice(-unit.length) != unit && parseFloat(from) != 0){
-				element.setStyle(property, to + unit);
-				var value = element.getComputedStyle(property);
-				// IE and Opera support pixelLeft or pixelWidth
-				if (!(/px$/.test(value))){
-					value = element.style[('pixel-' + property).camelCase()];
-					if (value == null){
-						// adapted from Dean Edwards' http://erik.eae.net/archives/2007/07/27/18.54.15/#comment-102291
-						var left = element.style.left;
-						element.style.left = to + unit;
-						value = element.style.pixelLeft;
-						element.style.left = left;
-					}
-				}
-				from = (to || 1) / (parseFloat(value) || 1) * (parseFloat(from) || 0);
-				element.setStyle(property, from + unit);
-			}
-		}
-		return {from: this.parse(from), to: this.parse(to)};
-	},
-
-	//parses a value into an array
-
-	parse: function(value){
-		value = Function.convert(value)();
-		value = (typeof value == 'string') ? value.split(' ') : Array.convert(value);
-		return value.map(function(val){
-			val = String(val);
-			var found = false;
-			Object.each(Fx.CSS.Parsers, function(parser){
-				if (found) return;
-				var parsed = parser.parse(val);
-				if (parsed || parsed === 0) found = {value: parsed, parser: parser};
-			});
-			found = found || {value: val, parser: Fx.CSS.Parsers.String};
-			return found;
-		});
-	},
-
-	//computes by a from and to prepared objects, using their parsers.
-
-	compute: function(from, to, delta){
-		var computed = [];
-		(Math.min(from.length, to.length)).times(function(i){
-			computed.push({value: from[i].parser.compute(from[i].value, to[i].value, delta), parser: from[i].parser});
-		});
-		computed.$family = Function.convert('fx:css:value');
-		return computed;
-	},
-
-	//serves the value as settable
-
-	serve: function(value, unit){
-		if (typeOf(value) != 'fx:css:value') value = this.parse(value);
-		var returned = [];
-		value.each(function(bit){
-			returned = returned.concat(bit.parser.serve(bit.value, unit));
-		});
-		return returned;
-	},
-
-	//renders the change to an element
-
-	render: function(element, property, value, unit){
-		element.setStyle(property, this.serve(value, unit));
-	},
-
-	//searches inside the page css to find the values for a selector
-
-	search: function(selector){
-		if (Fx.CSS.Cache[selector]) return Fx.CSS.Cache[selector];
-		var to = {}, selectorTest = new RegExp('^' + selector.escapeRegExp() + '$');
-
-		var searchStyles = function(rules){
-			Array.each(rules, function(rule){
-				if (rule.media){
-					searchStyles(rule.rules || rule.cssRules);
-					return;
-				}
-				if (!rule.style) return;
-				var selectorText = (rule.selectorText) ? rule.selectorText.replace(/^\w+/, function(m){
-					return m.toLowerCase();
-				}) : null;
-				if (!selectorText || !selectorTest.test(selectorText)) return;
-				Object.each(Element.Styles, function(value, style){
-					if (!rule.style[style] || Element.ShortStyles[style]) return;
-					value = String(rule.style[style]);
-					to[style] = ((/^rgb/).test(value)) ? value.rgbToHex() : value;
-				});
-			});
-		};
-
-		Array.each(document.styleSheets, function(sheet){
-			var href = sheet.href;
-			if (href && href.indexOf('://') > -1 && href.indexOf(document.domain) == -1) return;
-			var rules = sheet.rules || sheet.cssRules;
-			searchStyles(rules);
-		});
-		return Fx.CSS.Cache[selector] = to;
-	}
-
-});
-
-Fx.CSS.Cache = {};
-
-Fx.CSS.Parsers = {
-
-	Color: {
-		parse: function(value){
-			if (value.match(/^#[0-9a-f]{3,6}$/i)) return value.hexToRgb(true);
-			return ((value = value.match(/(\d+),\s*(\d+),\s*(\d+)/))) ? [value[1], value[2], value[3]] : false;
-		},
-		compute: function(from, to, delta){
-			return from.map(function(value, i){
-				return Math.round(Fx.compute(from[i], to[i], delta));
-			});
-		},
-		serve: function(value){
-			return value.map(Number);
-		}
-	},
-
-	Number: {
-		parse: parseFloat,
-		compute: Fx.compute,
-		serve: function(value, unit){
-			return (unit) ? value + unit : value;
-		}
-	},
-
-	String: {
-		parse: Function.convert(false),
-		compute: function(zero, one){
-			return one;
-		},
-		serve: function(zero){
-			return zero;
-		}
-	}
-
-};
-
-
-
-/*
----
-
-name: Fx.Morph
-
-description: Formerly Fx.Styles, effect to transition any number of CSS properties for an element using an object of rules, or CSS based selector rules.
-
-license: MIT-style license.
-
-requires: Fx.CSS
-
-provides: Fx.Morph
-
-...
-*/
-
-Fx.Morph = new Class({
-
-	Extends: Fx.CSS,
-
-	initialize: function(element, options){
-		this.element = this.subject = document.id(element);
-		this.parent(options);
-	},
-
-	set: function(now){
-		if (typeof now == 'string') now = this.search(now);
-		for (var p in now) this.render(this.element, p, now[p], this.options.unit);
-		return this;
-	},
-
-	compute: function(from, to, delta){
-		var now = {};
-		for (var p in from) now[p] = this.parent(from[p], to[p], delta);
-		return now;
-	},
-
-	start: function(properties){
-		if (!this.check(properties)) return this;
-		if (typeof properties == 'string') properties = this.search(properties);
-		var from = {}, to = {};
-		for (var p in properties){
-			var parsed = this.prepare(this.element, p, properties[p]);
-			from[p] = parsed.from;
-			to[p] = parsed.to;
-		}
-		return this.parent(from, to);
-	}
-
-});
-
-Element.Properties.morph = {
-
-	set: function(options){
-		this.get('morph').cancel().setOptions(options);
-		return this;
-	},
-
-	get: function(){
-		var morph = this.retrieve('morph');
-		if (!morph){
-			morph = new Fx.Morph(this, {link: 'cancel'});
-			this.store('morph', morph);
-		}
-		return morph;
-	}
-
-};
-
-Element.implement({
-
-	morph: function(props){
-		this.get('morph').start(props);
-		return this;
-	}
-
-});
-
-/*
----
-
-name: Fx.Transitions
-
-description: Contains a set of advanced transitions to be used with any of the Fx Classes.
-
-license: MIT-style license.
-
-credits:
-  - Easing Equations by Robert Penner, <http://www.robertpenner.com/easing/>, modified and optimized to be used with MooTools.
-
-requires: Fx
-
-provides: Fx.Transitions
-
-...
-*/
-
-Fx.implement({
-
-	getTransition: function(){
-		var trans = this.options.transition || Fx.Transitions.Sine.easeInOut;
-		if (typeof trans == 'string'){
-			var data = trans.split(':');
-			trans = Fx.Transitions;
-			trans = trans[data[0]] || trans[data[0].capitalize()];
-			if (data[1]) trans = trans['ease' + data[1].capitalize() + (data[2] ? data[2].capitalize() : '')];
-		}
-		return trans;
-	}
-
-});
-
-Fx.Transition = function(transition, params){
-	params = Array.convert(params);
-	var easeIn = function(pos){
-		return transition(pos, params);
-	};
-	return Object.append(easeIn, {
-		easeIn: easeIn,
-		easeOut: function(pos){
-			return 1 - transition(1 - pos, params);
-		},
-		easeInOut: function(pos){
-			return (pos <= 0.5 ? transition(2 * pos, params) : (2 - transition(2 * (1 - pos), params))) / 2;
-		}
-	});
-};
-
-Fx.Transitions = {
-
-	linear: function(zero){
-		return zero;
-	}
-
-};
-
-
-
-Fx.Transitions.extend = function(transitions){
-	for (var transition in transitions) Fx.Transitions[transition] = new Fx.Transition(transitions[transition]);
-};
-
-Fx.Transitions.extend({
-
-	Pow: function(p, x){
-		return Math.pow(p, x && x[0] || 6);
-	},
-
-	Expo: function(p){
-		return Math.pow(2, 8 * (p - 1));
-	},
-
-	Circ: function(p){
-		return 1 - Math.sin(Math.acos(p));
-	},
-
-	Sine: function(p){
-		return 1 - Math.cos(p * Math.PI / 2);
-	},
-
-	Back: function(p, x){
-		x = x && x[0] || 1.618;
-		return Math.pow(p, 2) * ((x + 1) * p - x);
-	},
-
-	Bounce: function(p){
-		var value;
-		for (var a = 0, b = 1; 1; a += b, b /= 2){
-			if (p >= (7 - 4 * a) / 11){
-				value = b * b - Math.pow((11 - 6 * a - 11 * p) / 4, 2);
-				break;
-			}
-		}
-		return value;
-	},
-
-	Elastic: function(p, x){
-		return Math.pow(2, 10 * --p) * Math.cos(20 * p * Math.PI * (x && x[0] || 1) / 3);
-	}
-
-});
-
-['Quad', 'Cubic', 'Quart', 'Quint'].each(function(transition, i){
-	Fx.Transitions[transition] = new Fx.Transition(function(p){
-		return Math.pow(p, i + 2);
-	});
-});
-
-/*
----
-
-name: Fx.Tween
-
-description: Formerly Fx.Style, effect to transition any CSS property for an element.
-
-license: MIT-style license.
-
-requires: Fx.CSS
-
-provides: [Fx.Tween, Element.fade, Element.highlight]
-
-...
-*/
-
-Fx.Tween = new Class({
-
-	Extends: Fx.CSS,
-
-	initialize: function(element, options){
-		this.element = this.subject = document.id(element);
-		this.parent(options);
-	},
-
-	set: function(property, now){
-		if (arguments.length == 1){
-			now = property;
-			property = this.property || this.options.property;
-		}
-		this.render(this.element, property, now, this.options.unit);
-		return this;
-	},
-
-	start: function(property, from, to){
-		if (!this.check(property, from, to)) return this;
-		var args = Array.flatten(arguments);
-		this.property = this.options.property || args.shift();
-		var parsed = this.prepare(this.element, this.property, args);
-		return this.parent(parsed.from, parsed.to);
-	}
-
-});
-
-Element.Properties.tween = {
-
-	set: function(options){
-		this.get('tween').cancel().setOptions(options);
-		return this;
-	},
-
-	get: function(){
-		var tween = this.retrieve('tween');
-		if (!tween){
-			tween = new Fx.Tween(this, {link: 'cancel'});
-			this.store('tween', tween);
-		}
-		return tween;
-	}
-
-};
-
-Element.implement({
-
-	tween: function(property, from, to){
-		this.get('tween').start(property, from, to);
-		return this;
-	},
-
-	fade: function(){
-		var fade = this.get('tween'), method, args = ['opacity'].append(arguments), toggle;
-		if (args[1] == null) args[1] = 'toggle';
-		switch (args[1]){
-			case 'in': method = 'start'; args[1] = 1; break;
-			case 'out': method = 'start'; args[1] = 0; break;
-			case 'show': method = 'set'; args[1] = 1; break;
-			case 'hide': method = 'set'; args[1] = 0; break;
-			case 'toggle':
-				var flag = this.retrieve('fade:flag', this.getStyle('opacity') == 1);
-				method = 'start';
-				args[1] = flag ? 0 : 1;
-				this.store('fade:flag', !flag);
-				toggle = true;
-				break;
-			default: method = 'start';
-		}
-		if (!toggle) this.eliminate('fade:flag');
-		fade[method].apply(fade, args);
-		var to = args[args.length - 1];
-
-		if (method == 'set'){
-			this.setStyle('visibility', to == 0 ? 'hidden' : 'visible');
-		} else if (to != 0){
-			if (fade.$chain.length){
-				fade.chain(function(){
-					this.element.setStyle('visibility', 'visible');
-					this.callChain();
-				});
-			} else {
-				this.setStyle('visibility', 'visible');
-			}
-		} else {
-			fade.chain(function(){
-				if (this.element.getStyle('opacity')) return;
-				this.element.setStyle('visibility', 'hidden');
-				this.callChain();
-			});
-		}
-
-		return this;
-	},
-
-	highlight: function(start, end){
-		if (!end){
-			end = this.retrieve('highlight:original', this.getStyle('background-color'));
-			end = (end == 'transparent') ? '#fff' : end;
-		}
-		var tween = this.get('tween');
-		tween.start('background-color', start || '#ffff88', end).chain(function(){
-			this.setStyle('background-color', this.retrieve('highlight:original'));
-			tween.callChain();
-		}.bind(this));
-		return this;
-	}
-
-});
 
 /*
 ---
