@@ -1477,6 +1477,7 @@ provides: Slick.Parser
 ...
 */
 
+let Slick = {};
 (function () {
    var parsed,
       separatorIndex,
@@ -1700,7 +1701,7 @@ __END__
 
    // Slick NS
 
-   var Slick = this.Slick || {};
+   Slick = this.Slick || {};
 
    Slick.parse = function (expression) {
       return parse(expression);
