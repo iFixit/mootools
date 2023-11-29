@@ -1,6 +1,6 @@
 /* MooTools: the javascript framework. license: MIT-style license. copyright: Copyright (c) 2006-2023 [Valerio Proietti](https://mootools.net/).*/
 /*!
-Web Build: https://mootools.net/more/builder/635d56223ff5561122016637612f936b
+Web Build: https://mootools.net/more/builder/18d58d09e2c16779db7f8cfa35ff7db8
 */
 /*
 ---
@@ -35,70 +35,6 @@ MooTools.More = {
    version: '1.6.0',
    build: '45b71db70f879781a7e0b0d3fb3bb1307c2521eb',
 };
-
-/*
----
-
-script: Chain.Wait.js
-
-name: Chain.Wait
-
-description: value, Adds a method to inject pauses between chained events.
-
-license: MIT-style license.
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Chain
-  - Core/Element
-  - Core/Fx
-  - MooTools.More
-
-provides: [Chain.Wait]
-
-...
-*/
-
-(function () {
-   var wait = {
-      wait: function (duration) {
-         return this.chain(
-            function () {
-               this.callChain.delay(duration == null ? 500 : duration, this);
-               return this;
-            }.bind(this)
-         );
-      },
-   };
-
-   Chain.implement(wait);
-
-   if (this.Fx) Fx.implement(wait);
-
-   if (this.Element && Element.implement && this.Fx) {
-      Element.implement({
-         chains: function (effects) {
-            Array.convert(effects || ['tween', 'morph', 'reveal']).each(function (effect) {
-               effect = this.get(effect);
-               if (!effect) return;
-               effect.setOptions({
-                  link: 'chain',
-               });
-            }, this);
-            return this;
-         },
-
-         pauseFx: function (duration, effect) {
-            this.chains(effect)
-               .get(effect || 'tween')
-               .wait(duration);
-            return this;
-         },
-      });
-   }
-})();
 
 /*
 ---
