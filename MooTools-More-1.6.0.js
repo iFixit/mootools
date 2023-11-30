@@ -1359,29 +1359,29 @@ provides: [Element.Event.Pseudos.Keys]
    });
 
    DOMEvent.defineKeys({
-      '16': 'shift',
-      '17': 'control',
-      '18': 'alt',
-      '20': 'capslock',
-      '33': 'pageup',
-      '34': 'pagedown',
-      '35': 'end',
-      '36': 'home',
-      '144': 'numlock',
-      '145': 'scrolllock',
-      '186': ';',
-      '187': '=',
-      '188': ',',
-      '190': '.',
-      '191': '/',
-      '192': '`',
-      '219': '[',
-      '220': '\\',
-      '221': ']',
-      '222': "'",
-      '107': '+',
-      '109': '-', // subtract
-      '189': '-', // dash
+      16: 'shift',
+      17: 'control',
+      18: 'alt',
+      20: 'capslock',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      144: 'numlock',
+      145: 'scrolllock',
+      186: ';',
+      187: '=',
+      188: ',',
+      190: '.',
+      191: '/',
+      192: '`',
+      219: '[',
+      220: '\\',
+      221: ']',
+      222: "'",
+      107: '+',
+      109: '-', // subtract
+      189: '-', // dash
    });
 })();
 
@@ -1736,8 +1736,8 @@ provides: [Element.Position]
          options.edge = edgeOption
             ? edgeOption
             : options.position.x == 'center' && options.position.y == 'center'
-            ? { x: 'center', y: 'center' }
-            : { x: 'left', y: 'top' };
+              ? { x: 'center', y: 'center' }
+              : { x: 'left', y: 'top' };
       },
 
       setOffsetOption: function (element, options) {
@@ -1876,17 +1876,17 @@ provides: [Element.Position]
             options.edge.x == 'right'
                ? options.dimensions['margin-right']
                : options.edge.x != 'center'
-               ? -options.dimensions['margin-left']
-               : -options.dimensions['margin-left'] +
-                 (options.dimensions['margin-right'] + options.dimensions['margin-left']) / 2;
+                 ? -options.dimensions['margin-left']
+                 : -options.dimensions['margin-left'] +
+                   (options.dimensions['margin-right'] + options.dimensions['margin-left']) / 2;
 
          position.top +=
             options.edge.y == 'bottom'
                ? options.dimensions['margin-bottom']
                : options.edge.y != 'center'
-               ? -options.dimensions['margin-top']
-               : -options.dimensions['margin-top'] +
-                 (options.dimensions['margin-bottom'] + options.dimensions['margin-top']) / 2;
+                 ? -options.dimensions['margin-top']
+                 : -options.dimensions['margin-top'] +
+                   (options.dimensions['margin-bottom'] + options.dimensions['margin-top']) / 2;
       },
 
       toEdge: function (position, options) {
@@ -3031,9 +3031,12 @@ provides: [Date]
             if (!ret) throw new Error('Invalid ' + type + ' index: ' + word);
             break;
          case 'string':
-            var match = translated.filter(function (name) {
-               return this.test(name);
-            }, new RegExp('^' + word, 'i'));
+            var match = translated.filter(
+               function (name) {
+                  return this.test(name);
+               },
+               new RegExp('^' + word, 'i')
+            );
             if (!match.length) throw new Error('Invalid ' + type + ' string');
             if (match.length > 1) throw new Error('Ambiguous ' + type);
             ret = match[0];
