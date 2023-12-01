@@ -12,4 +12,4 @@ Patched `Element.getProperty` to return the `Element` when called without argume
 ## More Modules
 
 See this link for a list of modules that ARE included in our version MooTools-More-1.6.0.js:
-https://mootools.net/more/builder/635d56223ff5561122016637612f936b
+https://mootools.net/more/builder/93a8f3a39af81415fbeb4827e5795266

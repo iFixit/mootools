@@ -1,6 +1,6 @@
 /* MooTools: the javascript framework. license: MIT-style license. copyright: Copyright (c) 2006-2023 [Valerio Proietti](https://mootools.net/).*/
 /*!
-Web Build: https://mootools.net/more/builder/635d56223ff5561122016637612f936b
+Web Build: https://mootools.net/more/builder/93a8f3a39af81415fbeb4827e5795266
 */
 /*
 ---
@@ -35,70 +35,6 @@ MooTools.More = {
    version: '1.6.0',
    build: '45b71db70f879781a7e0b0d3fb3bb1307c2521eb',
 };
-
-/*
----
-
-script: Chain.Wait.js
-
-name: Chain.Wait
-
-description: value, Adds a method to inject pauses between chained events.
-
-license: MIT-style license.
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Chain
-  - Core/Element
-  - Core/Fx
-  - MooTools.More
-
-provides: [Chain.Wait]
-
-...
-*/
-
-(function () {
-   var wait = {
-      wait: function (duration) {
-         return this.chain(
-            function () {
-               this.callChain.delay(duration == null ? 500 : duration, this);
-               return this;
-            }.bind(this)
-         );
-      },
-   };
-
-   Chain.implement(wait);
-
-   if (this.Fx) Fx.implement(wait);
-
-   if (this.Element && Element.implement && this.Fx) {
-      Element.implement({
-         chains: function (effects) {
-            Array.convert(effects || ['tween', 'morph', 'reveal']).each(function (effect) {
-               effect = this.get(effect);
-               if (!effect) return;
-               effect.setOptions({
-                  link: 'chain',
-               });
-            }, this);
-            return this;
-         },
-
-         pauseFx: function (duration, effect) {
-            this.chains(effect)
-               .get(effect || 'tween')
-               .wait(duration);
-            return this;
-         },
-      });
-   }
-})();
 
 /*
 ---
@@ -1423,354 +1359,31 @@ provides: [Element.Event.Pseudos.Keys]
    });
 
    DOMEvent.defineKeys({
-      '16': 'shift',
-      '17': 'control',
-      '18': 'alt',
-      '20': 'capslock',
-      '33': 'pageup',
-      '34': 'pagedown',
-      '35': 'end',
-      '36': 'home',
-      '144': 'numlock',
-      '145': 'scrolllock',
-      '186': ';',
-      '187': '=',
-      '188': ',',
-      '190': '.',
-      '191': '/',
-      '192': '`',
-      '219': '[',
-      '220': '\\',
-      '221': ']',
-      '222': "'",
-      '107': '+',
-      '109': '-', // subtract
-      '189': '-', // dash
+      16: 'shift',
+      17: 'control',
+      18: 'alt',
+      20: 'capslock',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      144: 'numlock',
+      145: 'scrolllock',
+      186: ';',
+      187: '=',
+      188: ',',
+      190: '.',
+      191: '/',
+      192: '`',
+      219: '[',
+      220: '\\',
+      221: ']',
+      222: "'",
+      107: '+',
+      109: '-', // subtract
+      189: '-', // dash
    });
 })();
-
-/*
----
-
-script: String.Extras.js
-
-name: String.Extras
-
-description: Extends the String native object to include methods useful in managing various kinds of strings (query strings, urls, html, etc).
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-  - Guillermo Rauch
-  - Christopher Pitt
-
-requires:
-  - Core/String
-  - Core/Array
-  - MooTools.More
-
-provides: [String.Extras]
-
-...
-*/
-
-(function () {
-   var special = {
-         a: /[àáâãäåăą]/g,
-         A: /[ÀÁÂÃÄÅĂĄ]/g,
-         c: /[ćčç]/g,
-         C: /[ĆČÇ]/g,
-         d: /[ďđ]/g,
-         D: /[ĎÐ]/g,
-         e: /[èéêëěę]/g,
-         E: /[ÈÉÊËĚĘ]/g,
-         g: /[ğ]/g,
-         G: /[Ğ]/g,
-         i: /[ìíîï]/g,
-         I: /[ÌÍÎÏ]/g,
-         l: /[ĺľł]/g,
-         L: /[ĹĽŁ]/g,
-         n: /[ñňń]/g,
-         N: /[ÑŇŃ]/g,
-         o: /[òóôõöøő]/g,
-         O: /[ÒÓÔÕÖØ]/g,
-         r: /[řŕ]/g,
-         R: /[ŘŔ]/g,
-         s: /[ššş]/g,
-         S: /[ŠŞŚ]/g,
-         t: /[ťţ]/g,
-         T: /[ŤŢ]/g,
-         u: /[ùúûůüµ]/g,
-         U: /[ÙÚÛŮÜ]/g,
-         y: /[ÿý]/g,
-         Y: /[ŸÝ]/g,
-         z: /[žźż]/g,
-         Z: /[ŽŹŻ]/g,
-         th: /[þ]/g,
-         TH: /[Þ]/g,
-         dh: /[ð]/g,
-         DH: /[Ð]/g,
-         ss: /[ß]/g,
-         oe: /[œ]/g,
-         OE: /[Œ]/g,
-         ae: /[æ]/g,
-         AE: /[Æ]/g,
-      },
-      tidy = {
-         ' ': /[\xa0\u2002\u2003\u2009]/g,
-         '*': /[\xb7]/g,
-         "'": /[\u2018\u2019]/g,
-         '"': /[\u201c\u201d]/g,
-         '...': /[\u2026]/g,
-         '-': /[\u2013]/g,
-         //	'--': /[\u2014]/g,
-         '&raquo;': /[\uFFFD]/g,
-      },
-      conversions = {
-         ms: 1,
-         s: 1000,
-         m: 6e4,
-         h: 36e5,
-      },
-      findUnits = /(\d*.?\d+)([msh]+)/;
-
-   var walk = function (string, replacements) {
-      var result = string,
-         key;
-      for (key in replacements) result = result.replace(replacements[key], key);
-      return result;
-   };
-
-   var getRegexForTag = function (tag, contents) {
-      tag = tag || (contents ? '' : '\\w+');
-      var regstr = contents
-         ? '<' + tag + '(?!\\w)[^>]*>([\\s\\S]*?)</' + tag + '(?!\\w)>'
-         : '</?' + tag + '/?>|<' + tag + '[\\s|/][^>]*>';
-      return new RegExp(regstr, 'gi');
-   };
-
-   String.implement({
-      standardize: function () {
-         return walk(this, special);
-      },
-
-      repeat: function (times) {
-         return new Array(times + 1).join(this);
-      },
-
-      pad: function (length, str, direction) {
-         if (this.length >= length) return this;
-
-         var pad = (str == null ? ' ' : '' + str)
-            .repeat(length - this.length)
-            .substr(0, length - this.length);
-
-         if (!direction || direction == 'right') return this + pad;
-         if (direction == 'left') return pad + this;
-
-         return (
-            pad.substr(0, (pad.length / 2).floor()) + this + pad.substr(0, (pad.length / 2).ceil())
-         );
-      },
-
-      getTags: function (tag, contents) {
-         return this.match(getRegexForTag(tag, contents)) || [];
-      },
-
-      stripTags: function (tag, contents) {
-         return this.replace(getRegexForTag(tag, contents), '');
-      },
-
-      tidy: function () {
-         return walk(this, tidy);
-      },
-
-      truncate: function (max, trail, atChar) {
-         var string = this;
-         if (trail == null && arguments.length == 1) trail = '…';
-         if (string.length > max) {
-            string = string.substring(0, max);
-            if (atChar) {
-               var index = string.lastIndexOf(atChar);
-               if (index != -1) string = string.substr(0, index);
-            }
-            if (trail) string += trail;
-         }
-         return string;
-      },
-
-      ms: function () {
-         // "Borrowed" from https://gist.github.com/1503944
-         var units = findUnits.exec(this);
-         if (units == null) return Number(this);
-         return Number(units[1]) * conversions[units[2]];
-      },
-   });
-})();
-
-/*
----
-
-script: Element.Forms.js
-
-name: Element.Forms
-
-description: Extends the Element native object to include methods useful in managing inputs.
-
-license: MIT-style license
-
-authors:
-  - Aaron Newton
-
-requires:
-  - Core/Element
-  - String.Extras
-  - MooTools.More
-
-provides: [Element.Forms]
-
-...
-*/
-
-Element.implement({
-   tidy: function () {
-      this.set('value', this.get('value').tidy());
-   },
-
-   getTextInRange: function (start, end) {
-      return this.get('value').substring(start, end);
-   },
-
-   getSelectedText: function () {
-      if (this.setSelectionRange)
-         return this.getTextInRange(this.getSelectionStart(), this.getSelectionEnd());
-      return document.selection.createRange().text;
-   },
-
-   getSelectedRange: function () {
-      if (this.selectionStart != null) {
-         return {
-            start: this.selectionStart,
-            end: this.selectionEnd,
-         };
-      }
-
-      var pos = {
-         start: 0,
-         end: 0,
-      };
-      var range = this.getDocument().selection.createRange();
-      if (!range || range.parentElement() != this) return pos;
-      var duplicate = range.duplicate();
-
-      if (this.type == 'text') {
-         pos.start = 0 - duplicate.moveStart('character', -100000);
-         pos.end = pos.start + range.text.length;
-      } else {
-         var value = this.get('value');
-         var offset = value.length;
-         duplicate.moveToElementText(this);
-         duplicate.setEndPoint('StartToEnd', range);
-         if (duplicate.text.length) offset -= value.match(/[\n\r]*$/)[0].length;
-         pos.end = offset - duplicate.text.length;
-         duplicate.setEndPoint('StartToStart', range);
-         pos.start = offset - duplicate.text.length;
-      }
-      return pos;
-   },
-
-   getSelectionStart: function () {
-      return this.getSelectedRange().start;
-   },
-
-   getSelectionEnd: function () {
-      return this.getSelectedRange().end;
-   },
-
-   setCaretPosition: function (pos) {
-      if (pos == 'end') pos = this.get('value').length;
-      this.selectRange(pos, pos);
-      return this;
-   },
-
-   getCaretPosition: function () {
-      return this.getSelectedRange().start;
-   },
-
-   selectRange: function (start, end) {
-      if (this.setSelectionRange) {
-         this.focus();
-         this.setSelectionRange(start, end);
-      } else {
-         var value = this.get('value');
-         var diff = value.substr(start, end - start).replace(/\r/g, '').length;
-         start = value.substr(0, start).replace(/\r/g, '').length;
-         var range = this.createTextRange();
-         range.collapse(true);
-         range.moveEnd('character', start + diff);
-         range.moveStart('character', start);
-         range.select();
-      }
-      return this;
-   },
-
-   insertAtCursor: function (value, select) {
-      var pos = this.getSelectedRange();
-      var text = this.get('value');
-      this.set(
-         'value',
-         text.substring(0, pos.start) + value + text.substring(pos.end, text.length)
-      );
-      if (select !== false) this.selectRange(pos.start, pos.start + value.length);
-      else this.setCaretPosition(pos.start + value.length);
-      return this;
-   },
-
-   insertAroundCursor: function (options, select) {
-      options = Object.append(
-         {
-            before: '',
-            defaultMiddle: '',
-            after: '',
-         },
-         options
-      );
-
-      var value = this.getSelectedText() || options.defaultMiddle;
-      var pos = this.getSelectedRange();
-      var text = this.get('value');
-
-      if (pos.start == pos.end) {
-         this.set(
-            'value',
-            text.substring(0, pos.start) +
-               options.before +
-               value +
-               options.after +
-               text.substring(pos.end, text.length)
-         );
-         this.selectRange(
-            pos.start + options.before.length,
-            pos.end + options.before.length + value.length
-         );
-      } else {
-         var current = text.substring(pos.start, pos.end);
-         this.set(
-            'value',
-            text.substring(0, pos.start) +
-               options.before +
-               current +
-               options.after +
-               text.substring(pos.end, text.length)
-         );
-         var selStart = pos.start + options.before.length;
-         if (select !== false) this.selectRange(selStart, selStart + current.length);
-         else this.setCaretPosition(selStart + text.length);
-      }
-      return this;
-   },
-});
 
 /*
 ---
@@ -1963,8 +1576,8 @@ provides: [Element.Position]
          options.edge = edgeOption
             ? edgeOption
             : options.position.x == 'center' && options.position.y == 'center'
-            ? { x: 'center', y: 'center' }
-            : { x: 'left', y: 'top' };
+              ? { x: 'center', y: 'center' }
+              : { x: 'left', y: 'top' };
       },
 
       setOffsetOption: function (element, options) {
@@ -2103,17 +1716,17 @@ provides: [Element.Position]
             options.edge.x == 'right'
                ? options.dimensions['margin-right']
                : options.edge.x != 'center'
-               ? -options.dimensions['margin-left']
-               : -options.dimensions['margin-left'] +
-                 (options.dimensions['margin-right'] + options.dimensions['margin-left']) / 2;
+                 ? -options.dimensions['margin-left']
+                 : -options.dimensions['margin-left'] +
+                   (options.dimensions['margin-right'] + options.dimensions['margin-left']) / 2;
 
          position.top +=
             options.edge.y == 'bottom'
                ? options.dimensions['margin-bottom']
                : options.edge.y != 'center'
-               ? -options.dimensions['margin-top']
-               : -options.dimensions['margin-top'] +
-                 (options.dimensions['margin-bottom'] + options.dimensions['margin-top']) / 2;
+                 ? -options.dimensions['margin-top']
+                 : -options.dimensions['margin-top'] +
+                   (options.dimensions['margin-bottom'] + options.dimensions['margin-top']) / 2;
       },
 
       toEdge: function (position, options) {
@@ -3258,9 +2871,12 @@ provides: [Date]
             if (!ret) throw new Error('Invalid ' + type + ' index: ' + word);
             break;
          case 'string':
-            var match = translated.filter(function (name) {
-               return this.test(name);
-            }, new RegExp('^' + word, 'i'));
+            var match = translated.filter(
+               function (name) {
+                  return this.test(name);
+               },
+               new RegExp('^' + word, 'i')
+            );
             if (!match.length) throw new Error('Invalid ' + type + ' string');
             if (match.length > 1) throw new Error('Ambiguous ' + type);
             ret = match[0];

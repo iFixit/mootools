@@ -1944,24 +1944,24 @@ requires: Slick.Parser
                  return context.contains(node);
               }
             : nativeRootContains && !nativeDocumentContains
-            ? function (context, node) {
-                 // IE8 does not have .contains on document.
-                 return (
-                    context === node ||
-                    (context === document ? document.documentElement : context).contains(node)
-                 );
-              }
-            : root && root.compareDocumentPosition
-            ? function (context, node) {
-                 return context === node || !!(context.compareDocumentPosition(node) & 16);
-              }
-            : function (context, node) {
-                 if (node)
-                    do {
-                       if (node === context) return true;
-                    } while ((node = node.parentNode));
-                 return false;
-              };
+              ? function (context, node) {
+                   // IE8 does not have .contains on document.
+                   return (
+                      context === node ||
+                      (context === document ? document.documentElement : context).contains(node)
+                   );
+                }
+              : root && root.compareDocumentPosition
+                ? function (context, node) {
+                     return context === node || !!(context.compareDocumentPosition(node) & 16);
+                  }
+                : function (context, node) {
+                     if (node)
+                        do {
+                           if (node === context) return true;
+                        } while ((node = node.parentNode));
+                     return false;
+                  };
 
       // document order sorting
       // credits to Sizzle (http://sizzlejs.com/)
@@ -1972,22 +1972,22 @@ requires: Slick.Parser
               return a.compareDocumentPosition(b) & 4 ? -1 : a === b ? 0 : 1;
            }
          : 'sourceIndex' in root
-         ? function (a, b) {
-              if (!a.sourceIndex || !b.sourceIndex) return 0;
-              return a.sourceIndex - b.sourceIndex;
-           }
-         : document.createRange
-         ? function (a, b) {
-              if (!a.ownerDocument || !b.ownerDocument) return 0;
-              var aRange = a.ownerDocument.createRange(),
-                 bRange = b.ownerDocument.createRange();
-              aRange.setStart(a, 0);
-              aRange.setEnd(a, 0);
-              bRange.setStart(b, 0);
-              bRange.setEnd(b, 0);
-              return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
-           }
-         : null;
+           ? function (a, b) {
+                if (!a.sourceIndex || !b.sourceIndex) return 0;
+                return a.sourceIndex - b.sourceIndex;
+             }
+           : document.createRange
+             ? function (a, b) {
+                  if (!a.ownerDocument || !b.ownerDocument) return 0;
+                  var aRange = a.ownerDocument.createRange(),
+                     bRange = b.ownerDocument.createRange();
+                  aRange.setStart(a, 0);
+                  aRange.setEnd(a, 0);
+                  bRange.setStart(b, 0);
+                  bRange.setEnd(b, 0);
+                  return aRange.compareBoundaryPoints(Range.START_TO_END, bRange);
+               }
+             : null;
 
       root = null;
 
@@ -2291,10 +2291,10 @@ requires: Slick.Parser
          special == 'n'
             ? { a: a, b: b }
             : special == 'odd'
-            ? { a: 2, b: 1 }
-            : special == 'even'
-            ? { a: 2, b: 0 }
-            : { a: 0, b: a };
+              ? { a: 2, b: 1 }
+              : special == 'even'
+                ? { a: 2, b: 0 }
+                : { a: 0, b: a };
 
       return (this.cacheNTH[argument] = parsed);
    };
@@ -3022,7 +3022,7 @@ new Type('Elements', Elements).implement({
 (function () {
    // FF, IE
    var splice = Array.prototype.splice,
-      object = { '0': 0, '1': 1, length: 2 };
+      object = { 0: 0, 1: 1, length: 2 };
 
    splice.call(object, 1, 1);
    if (object[1] == 1)
@@ -3683,8 +3683,8 @@ new Type('Elements', Elements).implement({
                        return document.id(opt).get('value');
                     })
                   : (type == 'radio' || type == 'checkbox') && !el.checked
-                  ? null
-                  : el.get('value');
+                    ? null
+                    : el.get('value');
 
             Array.convert(value).each(function (val) {
                if (typeof val != 'undefined')
@@ -4139,16 +4139,16 @@ provides: Event
    DOMEvent.defineKeys = DOMEvent.defineKey.overloadSetter(true);
 
    DOMEvent.defineKeys({
-      '38': 'up',
-      '40': 'down',
-      '37': 'left',
-      '39': 'right',
-      '27': 'esc',
-      '32': 'space',
-      '8': 'backspace',
-      '9': 'tab',
-      '46': 'delete',
-      '13': 'enter',
+      38: 'up',
+      40: 'down',
+      37: 'left',
+      39: 'right',
+      27: 'esc',
+      32: 'space',
+      8: 'backspace',
+      9: 'tab',
+      46: 'delete',
+      13: 'enter',
    });
 })();
 
@@ -4337,8 +4337,8 @@ provides: Element.Event
             'onwheel' in document
                ? 'wheel'
                : 'onmousewheel' in document
-               ? 'mousewheel'
-               : 'DOMMouseScroll',
+                 ? 'mousewheel'
+                 : 'DOMMouseScroll',
       },
    };
 
@@ -4675,21 +4675,21 @@ provides: Element.Style
            element.style.opacity = opacity;
         }
       : hasFilter
-      ? function (element, opacity) {
-           if (!element.currentStyle || !element.currentStyle.hasLayout) element.style.zoom = 1;
-           if (opacity == null || opacity == 1) {
-              setFilter(element, reAlpha, '');
-              if (opacity == 1 && getOpacity(element) != 1)
-                 setFilter(element, reAlpha, 'alpha(opacity=100)');
-           } else {
-              setFilter(
-                 element,
-                 reAlpha,
-                 'alpha(opacity=' + (opacity * 100).limit(0, 100).round() + ')'
-              );
-           }
-        }
-      : setVisibility;
+        ? function (element, opacity) {
+             if (!element.currentStyle || !element.currentStyle.hasLayout) element.style.zoom = 1;
+             if (opacity == null || opacity == 1) {
+                setFilter(element, reAlpha, '');
+                if (opacity == 1 && getOpacity(element) != 1)
+                   setFilter(element, reAlpha, 'alpha(opacity=100)');
+             } else {
+                setFilter(
+                   element,
+                   reAlpha,
+                   'alpha(opacity=' + (opacity * 100).limit(0, 100).round() + ')'
+                );
+             }
+          }
+        : setVisibility;
 
    var getOpacity = hasOpacity
       ? function (element) {
@@ -4697,17 +4697,17 @@ provides: Element.Style
            return opacity == '' ? 1 : opacity.toFloat();
         }
       : hasFilter
-      ? function (element) {
-           var filter = element.style.filter || element.getComputedStyle('filter'),
-              opacity;
-           if (filter) opacity = filter.match(reAlpha);
-           return opacity == null || filter == null ? 1 : opacity[1] / 100;
-        }
-      : function (element) {
-           var opacity = element.retrieve('$opacity');
-           if (opacity == null) opacity = element.style.visibility == 'hidden' ? 0 : 1;
-           return opacity;
-        };
+        ? function (element) {
+             var filter = element.style.filter || element.getComputedStyle('filter'),
+                opacity;
+             if (filter) opacity = filter.match(reAlpha);
+             return opacity == null || filter == null ? 1 : opacity[1] / 100;
+          }
+        : function (element) {
+             var opacity = element.retrieve('$opacity');
+             if (opacity == null) opacity = element.style.visibility == 'hidden' ? 0 : 1;
+             return opacity;
+          };
 
    var floatName = html.style.cssFloat == null ? 'styleFloat' : 'cssFloat',
       namedPositions = { left: '0%', top: '0%', center: '50%', right: '100%', bottom: '100%' },
