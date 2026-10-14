@@ -26,6 +26,7 @@ The file now contains only:
 - Sortables
 - Events.Pseudos
 - Element.Event.Pseudos
+- Element.Event.Pseudos.Keys
 - Element.Pin
 - Element.Shortcuts
 - String.QueryString
