@@ -13,3 +13,23 @@ Patched `Element.getProperty` to return the `Element` when called without argume
 
 See this link for a list of modules that ARE included in our version MooTools-More-1.6.0.js:
 https://mootools.net/more/builder/93a8f3a39af81415fbeb4827e5795266
+
+Modules have since been dropped by hand as their last callers left the app.
+The file now contains only:
+
+- More
+- Class.Binds
+- Class.Refactor
+- Drag
+- Element.Measure
+- Drag.Move
+- Sortables
+- Events.Pseudos
+- Element.Event.Pseudos
+- Element.Pin
+- Element.Shortcuts
+- String.QueryString
+- Hash
+- URI
+- URI.Relative
+- Assets
